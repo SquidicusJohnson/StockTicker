@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
@@ -45,5 +46,9 @@ public class StockController {
 		return ResponseEntity.ok(stocks);
 	}
 	
+	@PostMapping("/buy")
+	public void buyStock(@RequestParam String ticker, @RequestParam int amount, @RequestParam int price) {
+		stockService.buyStock(ticker, price, amount);
+	}
 	
 }

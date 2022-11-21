@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StockService {
@@ -19,13 +18,13 @@ public class StockService {
 	}
 	
 	public Optional<Stock> getStockByTicker(String ticker) {
-		Stock stock = stockRepo.findByTicker(ticker);
+		Optional<Stock> stock = stockRepo.findByTicker(ticker);
 		
 		if (stock == null) {
 			return Optional.empty();
 		}
 		
-		return Optional.of(stock);
+		return stock;
 	}
 	
 	public List<Stock> getAllAboveCap(int cap) {
@@ -47,7 +46,26 @@ public class StockService {
 	}
 	
 	public boolean buyStock(String ticker, int price, int amount) {
-		return false;
+		
+		Optional<Stock> stockResult = stockRepo.findByTicker(ticker);
+		
+		if (stockResult.isEmpty()) {
+			return false;
+		}
+		
+		Stock stock = stockResult.get();
+		
+		if (stock.getAvailableStocks() < amount) {
+			return false;
+		}
+		
+		int newCap = stock.getMarketCap() + amount*(price - stock.getPrice());
+		int newPrice = newCap / stock.getAvailableStocks();
+		int newAmountAvailable = stock.getAvailableStocks() - amount;
+		
+		stockRepo.updateStock(ticker, newCap, newPrice, newAmountAvailable);
+		
+		return true;
 	}
 
 }
